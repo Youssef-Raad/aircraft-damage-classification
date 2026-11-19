@@ -1,43 +1,46 @@
-# Aircraft Damage Classification (VGG16 Transfer Learning)
+# Aircraft Damage Detection & Captioning
 
-A deep learning computer vision project built with TensorFlow and Keras to classify aircraft surface defects into two categories: **dents** and **cracks**.
+A deep learning computer vision project built with TensorFlow/Keras and Hugging Face Transformers to classify aircraft surface defects (**dents** vs. **cracks**) and automatically generate natural-language inspection captions and summaries.
 
 ---
 
 ## Project Overview
 
-Automated visual inspection is critical in aviation maintenance to identify structural damage early and reliably. This project implements an initial baseline binary image classifier leveraging a pre-trained **VGG16** convolutional backbone with a custom dense classification head.
+Automated visual inspection is critical in aviation maintenance to identify and document structural damage early and reliably. This project combines two vision workflows in a single baseline pipeline:
+1. **Defect Classification:** Binary image classification using a pre-trained **VGG16** backbone.
+2. **Automated Image Captioning & Summarization:** Generative vision-language reporting using **BLIP** (`BlipForConditionalGeneration`).
 
 ---
 
 ## Dataset
 
-The dataset consists of RGB aircraft surface images resized to **$224 \times 224 \times 3$** and normalized to $[0, 1]$ across two classes (`dent` and `crack`):
+The classification dataset consists of RGB aircraft surface images resized to **$224 \times 224 \times 3$** and normalized to $[0, 1]$ across two classes (`dent` and `crack`):
 
 | Split | Number of Images | Purpose |
 | :--- | :---: | :--- |
 | **Train** | 300 | Model training |
-| **Validation** | 96 | Hyperparameter & epoch monitoring |
-| **Test** | 50 | Final model evaluation |
+| **Validation** | 96 | Epoch monitoring |
+| **Test** | 50 | Final evaluation |
 | **Total** | **446** | — |
 
 ---
 
 ## Model Architecture
 
-The model uses **VGG16** (pre-trained on ImageNet, `include_top=False`) with frozen convolutional layers as a feature extractor, followed by a custom classification head:
-
-* **Base Model:** VGG16 (`224x224x3` input, frozen weights)
-* **Feature Flattening:** `Flatten()`
-* **Fully Connected Layers:** `Dense(512, activation='relu')` $\rightarrow$ `Dropout(0.3)` $\rightarrow$ `Dense(512, activation='relu')` $\rightarrow$ `Dropout(0.3)`
-* **Output Layer:** `Dense(1, activation='sigmoid')`
+### 1. Classification Model (VGG16 Transfer Learning)
+* **Base Model:** VGG16 (`224x224x3` input, frozen ImageNet weights)
+* **Classification Head:** `Flatten()` $\rightarrow$ `Dense(512, activation='relu')` $\rightarrow$ `Dropout(0.3)` $\rightarrow$ `Dense(512, activation='relu')` $\rightarrow$ `Dropout(0.3)` $\rightarrow$ `Dense(1, activation='sigmoid')`
 * **Optimizer & Loss:** `Adam(learning_rate=0.0001)` with `binary_crossentropy`
+
+### 2. Vision-Language Captioning (BLIP)
+* **Model:** Pre-trained **BLIP** (`Salesforce/blip-image-captioning-base`)
+* **Output:** Generates both a general scene caption and a targeted aircraft damage summary from input inspection images.
 
 ---
 
 ## Baseline Results
 
-Trained for **5 epochs** (batch size `32`):
+Classification model trained for **5 epochs** (batch size `32`):
 
 | Metric | Score |
 | :--- | :---: |
@@ -51,5 +54,5 @@ Trained for **5 epochs** (batch size `32`):
 
 ```text
 aircraft-damage-classification/
-├── aircraft_damage_classification.ipynb   # Baseline training & evaluation notebook
-└── README.md                              # Project documentation
+├── Aircraft damage detection model.ipynb   # Baseline classification & BLIP captioning notebook
+└── README.md                               # Project documentation
