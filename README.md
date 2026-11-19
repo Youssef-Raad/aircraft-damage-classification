@@ -52,5 +52,4 @@ Trained for **5 epochs** (batch size `32`):
 ```text
 aircraft-damage-classification/
 ├── aircraft_damage_classification.ipynb   # Baseline training & evaluation notebook
-├── LICENSE                                # MIT License
 └── README.md                              # Project documentation
